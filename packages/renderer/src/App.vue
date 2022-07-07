@@ -1,11 +1,53 @@
 <script lang="ts" setup>
-import ReactiveCounter from '/@/components/ReactiveCounter.vue';
-import ReactiveHash from '/@/components/ReactiveHash.vue';
-import ElectronVersions from '/@/components/ElectronVersions.vue';
+// import ReactiveCounter from '/@/components/ReactiveCounter.vue';
+// import ReactiveHash from '/@/components/ReactiveHash.vue';
+// import ElectronVersions from '/@/components/ElectronVersions.vue';
+import {selectDirectory,getDirectories} from '#preload';
+import { ref } from 'vue';
+
+
+const subDirectories=ref<string[]>([]);
+const onDirectorySelectClick=async()=>{
+  console.log(selectDirectory);
+  const result=await selectDirectory();
+  console.log(result);
+
+  if(result.canceled){
+    subDirectories.value=[];
+    return;
+  }
+  const filePaths=result.filePaths;
+
+  const filePath= filePaths[0];
+
+  console.log('hi');
+  const directories=await getDirectories(filePath);
+  console.log('finished');
+  console.log(directories);
+  subDirectories.value=directories;
+
+};
+
+
+const onSubDirectoryClick=async()=>{
+  // TODO: データを読み込み lmdb
+};
 </script>
 
 <template>
-  <img
+  <button @click="onDirectorySelectClick">
+    LSUNデータセットを選択
+  </button>
+  <div>
+    <div
+      v-for="(directoryName,i) in subDirectories"
+      :key="i"
+      @click="onSubDirectoryClick"
+    >
+      {{ directoryName }}
+    </div>
+  </div>
+  <!-- <img
     alt="Vue logo"
     src="../assets/logo.svg"
     width="150"
@@ -38,7 +80,7 @@ import ElectronVersions from '/@/components/ElectronVersions.vue';
   <p>
     Edit
     <code>packages/renderer/src/App.vue</code> to test hot module replacement.
-  </p>
+  </p> -->
 </template>
 
 <style>
